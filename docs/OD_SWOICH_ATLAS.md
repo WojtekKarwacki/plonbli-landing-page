@@ -69,7 +69,7 @@ Final refinement (edit target: the phone illustration from the first pass; visua
 ## Production release
 
 1. Build with `https://odswoich.pl` as the canonical origin. Check canonical, Open Graph/Twitter image and logo URLs, JSON-LD, robots and sitemap in `dist`.
-2. In Netlify, attach `odswoich.pl`, point its DNS to the project and confirm HTTPS. Custom domains are configured in Netlify rather than in the build output. No environment variables are needed.
+2. Deploy the revision through Iterada, point `odswoich.pl` and `www.odswoich.pl` at the Iterada server, and confirm HTTPS. The deployment binding reserves both names, and the site redirects `www` to the canonical apex address. No environment variables are needed.
 3. Smoke-test navigation and FAQ, check the sharing card and submit the new sitemap. If the old domain is also being retired, set up permanent redirects separately and preserve paths and queries.
 
 ## Production audit
@@ -78,5 +78,5 @@ Final refinement (edit target: the phone illustration from the first pass; visua
 - Review the first screen, illustrations, and both directions of the scroll story on narrow mobile and desktop. Check keyboard navigation, no-JavaScript mode, reduced motion, and FAQ expansion and collapse.
 - On mobile, pause halfway through each photo transition. Only the images should crossfade; the description must remain opaque on a solid surface and meet 4.5:1 contrast.
 - Keep `scripts/public-assets.mjs` in sync when introducing a public file. The build packages only this list plus generated outputs and rejects unapproved files, broken asset references, and legacy branding in the HTML/CSS/JS.
-- Check the live site separately from CI: a trusted HTTPS certificate for both hostnames, the `www` redirect, canonical links, sitemap, sharing card, and a missing path returning the branded 404. GitHub Actions does not verify DNS, certificates, or the Netlify project.
+- Check the live site separately from CI: a trusted HTTPS certificate for both hostnames, the `www` redirect, canonical links, sitemap, sharing card, and a missing path returning the branded 404. GitHub Actions does not verify DNS, certificates, or the Iterada production route.
 - Run `npm audit --omit=dev` for runtime dependencies and review the full npm audit separately. Do not apply forced upgrades of the build/test toolchain without revalidating the build and both browser projects.

@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.iterada-delivery-cache/
 *.local
 *.tsbuildinfo
 test-results
