@@ -120,3 +120,4 @@ workflows:
     target:
       kind: http-observe
       origin: https://odswoich.pl
+      direct_host: iterada.com

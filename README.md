@@ -57,4 +57,4 @@ npm run test:e2e
 
 GitHub Actions odpowiada za kontrolę jakości. Produkcję buduje i uruchamia Iterada z `compose.yaml`: wieloetapowy obraz wykonuje `npm run build`, a mały serwer Node udostępnia wynik na porcie 8080. Wdrożenie nie wymaga sekretów ani pliku `.env`; powrót do poprzedniej wersji odbywa się przez ponowne wdrożenie poprzedniej rewizji.
 
-Publiczne adresy pozostają bez zmian: `https://odswoich.pl` i `https://www.odswoich.pl`. Przy pierwszym przejściu z Netlify rekordy DNS obu nazw trzeba skierować na publiczny adres serwera Iterady. Po zmianie DNS kolejne wdrożenia i wycofania wersji obsługuje już Iterada.
+Publiczne adresy pozostają bez zmian: `https://odswoich.pl` i `https://www.odswoich.pl`. Przy pierwszym przejściu na hosting Iterady rekordy DNS obu nazw trzeba skierować na publiczny adres serwera Iterady. Po zmianie DNS kolejne wdrożenia i wycofania wersji obsługuje już Iterada.

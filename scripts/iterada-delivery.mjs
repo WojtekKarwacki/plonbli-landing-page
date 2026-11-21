@@ -3,6 +3,7 @@
 import { spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync } from "node:fs";
 import { mkdir, rename, writeFile } from "node:fs/promises";
+import { resolve4 } from "node:dns/promises";
 import path from "node:path";
 
 if (process.env.ITERADA_PINNED_NODE !== "1") {
@@ -137,6 +138,24 @@ function productionOrigin(target) {
   return value.origin;
 }
 
+function directHost(target) {
+  const value = String(target.direct_host || "").trim().toLowerCase();
+  if (!/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(value)) {
+    throw new Error("The direct deployment host must be a valid domain name.");
+  }
+  return value;
+}
+
+async function resolvesToDirectHost(origin, host) {
+  const productionHost = new URL(origin).hostname;
+  const [productionAddresses, directAddresses] = await Promise.all([
+    resolve4(productionHost),
+    resolve4(host),
+  ]);
+  const expected = new Set(directAddresses);
+  return productionAddresses.some((address) => expected.has(address));
+}
+
 async function liveProbe(origin) {
   const started = performance.now();
   const response = await fetch(origin, {
@@ -150,7 +169,25 @@ async function liveProbe(origin) {
 async function observeHttp(request) {
   if (request.target.kind !== "http-observe") throw new Error("The observe workflow target is invalid.");
   const origin = productionOrigin(request.target);
+  const host = directHost(request.target);
   const capturedAt = Date.now() / 1000;
+  try {
+    if (!await resolvesToDirectHost(origin, host)) {
+      return {
+        status: "unknown",
+        detail: "Production DNS does not point to the Iterada deployment yet.",
+        metrics: {},
+        captured_at: capturedAt,
+      };
+    }
+  } catch {
+    return {
+      status: "unknown",
+      detail: "Production DNS could not be compared with the Iterada deployment host.",
+      metrics: {},
+      captured_at: capturedAt,
+    };
+  }
   const results = await Promise.allSettled(Array.from({ length: 5 }, () => liveProbe(origin)));
   const probes = results.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
   const successful = probes.filter((probe) => probe.ok);
