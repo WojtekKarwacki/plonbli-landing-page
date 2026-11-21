@@ -100,8 +100,7 @@ workflows:
       service: site
       port: 8080
       hostname:
-        - odswoich.pl
-        - www.odswoich.pl
+        - plonbli.iterada.com
 
   preview:
     capability: preview
@@ -119,5 +118,5 @@ workflows:
     default: true
     target:
       kind: http-observe
-      origin: https://odswoich.pl
+      origin: https://plonbli.iterada.com
       direct_host: iterada.com

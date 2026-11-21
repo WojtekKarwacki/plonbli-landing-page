@@ -69,7 +69,7 @@ Final refinement (edit target: the phone illustration from the first pass; visua
 ## Production release
 
 1. Build with `https://odswoich.pl` as the canonical origin. Check canonical, Open Graph/Twitter image and logo URLs, JSON-LD, robots and sitemap in `dist`.
-2. Deploy the revision through Iterada, point `odswoich.pl` and `www.odswoich.pl` at the Iterada server, and confirm HTTPS. The deployment binding reserves both names, and the site redirects `www` to the canonical apex address. No environment variables are needed.
+2. Deploy the revision through Iterada and confirm HTTPS at `https://plonbli.iterada.com`, the address the deployment binding reserves. To serve `odswoich.pl` too, point it (and `www.odswoich.pl`) at the Iterada server, add the names to the binding, and the site redirects `www` to the canonical apex address. No environment variables are needed.
 3. Smoke-test navigation and FAQ, check the sharing card and submit the new sitemap. If the old domain is also being retired, set up permanent redirects separately and preserve paths and queries.
 
 ## Production audit
