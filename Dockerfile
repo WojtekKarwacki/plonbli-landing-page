@@ -13,9 +13,9 @@ ENV HOST=0.0.0.0 \
     PORT=8080
 WORKDIR /app
 COPY --from=build --chown=node:node /app/dist ./dist
-COPY --chown=node:node scripts/serve-dist.mjs ./serve-dist.mjs
+COPY --chown=node:node scripts/serve-dist.mjs scripts/healthcheck.mjs ./
 USER node
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=6 \
-  CMD ["node", "-e", "fetch('http://127.0.0.1:8080/').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
+  CMD ["node", "healthcheck.mjs"]
 CMD ["node", "serve-dist.mjs"]
