@@ -1,0 +1,143 @@
+version: 1
+
+adapters:
+  delivery:
+    mode: process
+    entrypoint: ["node", "scripts/iterada-delivery.mjs"]
+    timeout_seconds: 1800
+
+workflows:
+  tests:
+    capability: test
+    adapter: delivery
+    name: Unit and integration tests
+    default: true
+    steps:
+      - id: install
+        name: Install locked dependencies
+      - id: test
+        name: Run unit and integration tests
+        needs: [install]
+    target:
+      kind: command
+      commands:
+        - id: install
+          label: Install locked dependencies
+          argv: ["npm", "ci"]
+        - id: test
+          label: Run unit and integration tests
+          argv: ["npm", "test"]
+
+  e2e:
+    capability: e2e
+    adapter: delivery
+    name: Product tests
+    default: true
+    steps:
+      - id: install
+        name: Install locked dependencies
+      - id: build
+        name: Build the private product copy
+        needs: [install]
+      - id: browser
+        name: Prepare the browser engine
+        needs: [build]
+      - id: journeys
+        name: Walk the product journeys
+        needs: [browser]
+    target:
+      kind: command
+      commands:
+        - id: install
+          label: Install locked dependencies
+          argv: ["npm", "ci"]
+        - id: build
+          label: Build the private product copy
+          argv: ["npm", "run", "build"]
+        - id: browser
+          label: Prepare the browser engine
+          argv: ["npx", "playwright", "install", "chromium"]
+        - id: journeys
+          label: Walk the product journeys
+          argv: ["npm", "run", "test:e2e:run", "--", "--project=chromium"]
+
+  build:
+    capability: build
+    adapter: delivery
+    name: Production build
+    default: true
+    steps:
+      - id: install
+        name: Install locked dependencies
+      - id: build
+        name: Build and prerender the site
+        needs: [install]
+      - id: verify
+        name: Verify the published files
+        needs: [build]
+    target:
+      kind: command
+      commands:
+        - id: install
+          label: Install locked dependencies
+          argv: ["npm", "ci"]
+        - id: build
+          label: Build and prerender the site
+          argv: ["npm", "run", "build"]
+        - id: verify
+          label: Verify the published files
+          argv: ["npm", "run", "verify:dist"]
+
+  production:
+    capability: deploy
+    adapter: delivery
+    name: Deploy production
+    default: true
+    steps:
+      - id: dispatch
+        name: Queue the Netlify build
+      - id: build
+        name: Build the release on Netlify
+        needs: [dispatch]
+      - id: publish
+        name: Publish the atomic deploy
+        needs: [build]
+      - id: verify
+        name: Verify the production site
+        needs: [publish]
+    target:
+      kind: netlify-deploy
+      site_id: e83e30c6-2ae4-467e-8e18-478880f698f2
+      branch: main
+      origin: https://odswoich.pl
+      secrets: [NETLIFY_AUTH_TOKEN]
+
+  rollback:
+    capability: rollback
+    adapter: delivery
+    name: Restore a previous production deploy
+    default: true
+    steps:
+      - id: locate
+        name: Locate the previous Netlify deploy
+      - id: restore
+        name: Restore the atomic deploy
+        needs: [locate]
+      - id: verify
+        name: Verify the restored production site
+        needs: [restore]
+    target:
+      kind: netlify-rollback
+      site_id: e83e30c6-2ae4-467e-8e18-478880f698f2
+      origin: https://odswoich.pl
+      secrets: [NETLIFY_AUTH_TOKEN]
+
+  observe:
+    capability: observe
+    adapter: delivery
+    name: Production health
+    default: true
+    target:
+      kind: netlify-observe
+      site_id: e83e30c6-2ae4-467e-8e18-478880f698f2
+      origin: https://odswoich.pl
